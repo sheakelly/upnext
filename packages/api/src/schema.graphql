@@ -1,0 +1,14 @@
+type Query {
+  tasks: [Task!]!
+}
+
+type Task {
+  id: ID!
+  title: String!
+  completed: Boolean!
+}
+
+# type Project {
+#   name: String!
+#   tasks: [Task!]!
+# }

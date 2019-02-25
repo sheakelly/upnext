@@ -1,0 +1,30 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/graphql": "^14.0.7",
+    "graphql-code-generator": "^0.17.0",
+    "graphql-codegen-typescript-common": "0.17.0",
+    "graphql-codegen-typescript-resolvers": "^0.17.0",
+    "graphql-codegen-typescript-server": "^0.17.0",
+    "serverless": "^1.38.0",
+    "serverless-offline": "^4.6.0",
+    "serverless-parcel": "^1.0.4",
+    "serverless-webpack": "^5.2.0",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3333",
+    "webpack": "^4.29.5",
+    "webpack-graphql-loader": "^1.0.0"
+  },
+  "dependencies": {
+    "apollo-server-lambda": "^2.4.6",
+    "graphql": "^14.1.1",
+    "graphql-import": "^0.7.1"
+  },
+  "scripts": {
+    "start": "sls offline",
+    "generate": "gql-gen --config codegen.yml"
+  }
+}
