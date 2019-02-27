@@ -4,18 +4,27 @@ import Api.Object
 import Api.Object.Task
 import Api.Query as Query
 import Browser
+import Browser.Dom
 import Graphql.Http
 import Graphql.Operation exposing (RootQuery)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, with)
 import Html exposing (Html, button, div, i, input, text)
-import Html.Attributes exposing (class)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (class, id)
+import Html.Events exposing (onClick, onInput)
+import Keyboard exposing (Key(..))
+import Keyboard.Events as Keyboard
 import RemoteData exposing (RemoteData(..))
+import Task
 
 
 type alias Task =
     { title : String
     }
+
+
+setTitle : String -> Task -> Task
+setTitle title task =
+    { task | title = title }
 
 
 type alias TaskList =
@@ -25,12 +34,17 @@ type alias TaskList =
 type alias Model =
     { tasks : RemoteData (Graphql.Http.Error TaskList) TaskList
     , addMode : Bool
+    , newTask : Maybe Task
     }
 
 
 type Msg
     = AddTaskClicked
+    | CancelAddClicked
+    | SaveNewTask
+    | NewTaskTitleChanged String
     | GotResponse (RemoteData (Graphql.Http.Error TaskList) TaskList)
+    | Focus (Result Browser.Dom.Error ())
 
 
 tasksQuery : SelectionSet (List Task) RootQuery
@@ -53,14 +67,30 @@ makeRequest =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { tasks = Loading, addMode = False }, makeRequest )
+    ( { tasks = Loading, addMode = False, newTask = Nothing }, makeRequest )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         AddTaskClicked ->
-            ( { model | addMode = True }, Cmd.none )
+            ( setAddMode model, focusNewTask )
+
+        CancelAddClicked ->
+            ( { model | addMode = False }, Cmd.none )
+
+        NewTaskTitleChanged value ->
+            let
+                updated =
+                    Maybe.map (setTitle value) model.newTask
+            in
+            ( { model | newTask = updated }, Cmd.none )
+
+        SaveNewTask ->
+            ( { model | addMode = False }, Cmd.none )
+
+        Focus _ ->
+            ( model, Cmd.none )
 
         GotResponse response ->
             case response of
@@ -68,9 +98,23 @@ update msg model =
                     ( { model | tasks = response }, Cmd.none )
 
 
+setAddMode : Model -> Model
+setAddMode model =
+    let
+        newTask =
+            case model.newTask of
+                Just _ ->
+                    model.newTask
+
+                Nothing ->
+                    Just { title = "" }
+    in
+    { model | addMode = True, newTask = newTask }
+
+
 view : Model -> Browser.Document Msg
 view model =
-    { title = "URL Interceptor"
+    { title = "UpNext^"
     , body =
         [ viewHeader
         , div [ class "container pt-2" ]
@@ -109,10 +153,21 @@ viewTaskList tasks addMode =
 
 inputField : Html Msg
 inputField =
-    div [ class "ml-2 flex items-start" ]
-        [ input [ class "mr-2 appearance-none border rounded w-full py-2 px-3 text-grey-darker leading-tight focus:outline-none focus:shadow-outline" ] []
-        , i [ class "material-icons" ] [ text "cancel" ]
+    div [ class "p-2 flex items-center" ]
+        [ input
+            [ id "new-task"
+            , class "mr-2 appearance-none border rounded w-full py-2 px-3 text-grey-darker leading-tight focus:outline-none focus:shadow-outline"
+            , onInput NewTaskTitleChanged
+            , Keyboard.onKeyDown [ ( Enter, SaveNewTask ) ]
+            ]
+            []
+        , i [ class "material-icons", onClick CancelAddClicked ] [ text "cancel" ]
         ]
+
+
+focusNewTask : Cmd Msg
+focusNewTask =
+    Task.attempt Focus (Browser.Dom.focus "new-task")
 
 
 nothing : Html msg
