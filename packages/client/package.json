@@ -17,5 +17,9 @@
   "scripts": {
     "start": "node devServer.js",
     "generate": "elm-graphql http://localhost:4000/graphql --base Api"
+  },
+  "dependencies": {
+    "material-design-icons": "^3.0.1",
+    "typeface-open-sans": "^0.0.54"
   }
 }

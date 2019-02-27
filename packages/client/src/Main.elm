@@ -7,7 +7,7 @@ import Browser
 import Graphql.Http
 import Graphql.Operation exposing (RootQuery)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, with)
-import Html exposing (Html, button, div, text)
+import Html exposing (Html, button, div, i, input, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import RemoteData exposing (RemoteData(..))
@@ -24,11 +24,12 @@ type alias TaskList =
 
 type alias Model =
     { tasks : RemoteData (Graphql.Http.Error TaskList) TaskList
+    , addMode : Bool
     }
 
 
 type Msg
-    = RefreshClicked
+    = AddTaskClicked
     | GotResponse (RemoteData (Graphql.Http.Error TaskList) TaskList)
 
 
@@ -52,14 +53,14 @@ makeRequest =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { tasks = Loading }, makeRequest )
+    ( { tasks = Loading, addMode = False }, makeRequest )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        RefreshClicked ->
-            ( model, makeRequest )
+        AddTaskClicked ->
+            ( { model | addMode = True }, Cmd.none )
 
         GotResponse response ->
             case response of
@@ -69,20 +70,65 @@ update msg model =
 
 view : Model -> Browser.Document Msg
 view model =
-    let
-        tasks =
-            List.map viewTask <| RemoteData.withDefault [] model.tasks
-    in
     { title = "URL Interceptor"
     , body =
-        [ div [] tasks
+        [ viewHeader
+        , div [ class "container pt-2" ]
+            [ viewTaskList (RemoteData.withDefault [] model.tasks) model.addMode ]
         ]
     }
 
 
+viewHeader : Html Msg
+viewHeader =
+    div [ class "p-2 bg-grey text-center" ] [ text "UpNext^" ]
+
+
+viewTaskList : TaskList -> Bool -> Html Msg
+viewTaskList tasks addMode =
+    let
+        task_ =
+            List.map viewTask tasks
+
+        addButton_ =
+            if addMode == False then
+                addButton
+
+            else
+                nothing
+
+        inputField_ =
+            if addMode == True then
+                inputField
+
+            else
+                nothing
+    in
+    div [ class "relative" ] (task_ ++ [ addButton_ ] ++ [ inputField_ ])
+
+
+inputField : Html Msg
+inputField =
+    div [ class "ml-2 flex items-start" ]
+        [ input [ class "mr-2 appearance-none border rounded w-full py-2 px-3 text-grey-darker leading-tight focus:outline-none focus:shadow-outline" ] []
+        , i [ class "material-icons" ] [ text "cancel" ]
+        ]
+
+
+nothing : Html msg
+nothing =
+    text ""
+
+
+addButton : Html Msg
+addButton =
+    div [ class "pin-b pin-r absolute" ]
+        [ i [ class "material-icons", onClick AddTaskClicked ] [ text "add_circle" ] ]
+
+
 viewTask : Task -> Html Msg
 viewTask task =
-    div [ class "text-purple" ] [ text task.title ]
+    div [ class "p-2 text-lg text-black" ] [ text task.title ]
 
 
 main : Program () Model Msg

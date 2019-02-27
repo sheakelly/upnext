@@ -10,7 +10,8 @@ require("dotenv").config()
 
 let bundler = new Bundler("./src/index.html", {
   cache: false,
-  minify: false
+  minify: false,
+  hmr: true
 })
 
 let app = express()
