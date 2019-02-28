@@ -136,7 +136,7 @@ viewTaskList tasks addMode =
 
         addButton_ =
             if addMode == False then
-                addButton
+                div [ class "pt-2 pl-1" ] [ icon "add_circle" AddTaskClicked ]
 
             else
                 nothing
@@ -148,7 +148,7 @@ viewTaskList tasks addMode =
             else
                 nothing
     in
-    div [ class "relative" ] (task_ ++ [ addButton_ ] ++ [ inputField_ ])
+    div [] (task_ ++ [ addButton_ ] ++ [ inputField_ ])
 
 
 inputField : Html Msg
@@ -161,7 +161,7 @@ inputField =
             , Keyboard.onKeyDown [ ( Enter, SaveNewTask ) ]
             ]
             []
-        , i [ class "material-icons", onClick CancelAddClicked ] [ text "cancel" ]
+        , icon "cancel" CancelAddClicked 
         ]
 
 
@@ -177,8 +177,12 @@ nothing =
 
 addButton : Html Msg
 addButton =
-    div [ class "pin-b pin-r absolute" ]
-        [ i [ class "material-icons", onClick AddTaskClicked ] [ text "add_circle" ] ]
+    i [ class "p-2 material-icons text-3xl", onClick AddTaskClicked ] [ text "add_circle" ]
+
+
+icon : String -> msg -> Html msg
+icon name onClick_ =
+    i [ class "material-icons text-3xl", onClick onClick_ ] [ text name ]
 
 
 viewTask : Task -> Html Msg

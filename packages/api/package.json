@@ -19,9 +19,11 @@
     "webpack-graphql-loader": "^1.0.0"
   },
   "dependencies": {
+    "@types/uuid": "^3.4.4",
     "apollo-server-lambda": "^2.4.6",
     "graphql": "^14.1.1",
-    "graphql-import": "^0.7.1"
+    "graphql-import": "^0.7.1",
+    "uuid": "^3.3.2"
   },
   "scripts": {
     "start": "sls offline",

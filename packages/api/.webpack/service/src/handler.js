@@ -5655,7 +5655,7 @@ eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst queryResolvers = {\n    tasks: () => [\n        { id: \"1\", title: \"fix roof\", completed: false },\n        { id: \"2\", title: \"buy chocoloate\", completed: false },\n        { id: \"3\", title: \"new shoes\", completed: false }\n    ]\n};\nexports.resolvers = {\n    Query: queryResolvers\n};\n\n\n//# sourceURL=webpack:///./src/resolvers.ts?");
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst uuid_1 = __importDefault(__webpack_require__(/*! uuid */ \"../../node_modules/uuid/index.js\"));\nconst queryResolvers = {\n    tasks: () => [\n        { id: \"1\", title: \"fix roof\", completed: false },\n        { id: \"2\", title: \"buy chocoloate\", completed: false },\n        { id: \"3\", title: \"new shoes\", completed: false }\n    ]\n};\nconst mutationResolvers = {\n    createTask: (_, { title }) => {\n        return { id: uuid_1.default.v4(), title };\n    }\n};\nexports.resolvers = {\n    Query: queryResolvers,\n    Mutation: mutationResolvers\n};\n\n\n//# sourceURL=webpack:///./src/resolvers.ts?");
 
 /***/ }),
 
@@ -5666,7 +5666,7 @@ eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst 
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("module.exports = \"type Query {\\n  tasks: [Task!]!\\n}\\n\\ntype Task {\\n  id: ID!\\n  title: String!\\n  completed: Boolean!\\n}\\n\"\n\n//# sourceURL=webpack:///./src/schema.graphql?");
+eval("module.exports = \"type Query {\\n  tasks: [Task!]!\\n}\\n\\ntype Mutation {\\n  createTask(title: String!): Task!\\n}\\n\\ntype Task {\\n  id: ID!\\n  title: String!\\n  completed: Boolean!\\n}\\n\"\n\n//# sourceURL=webpack:///./src/schema.graphql?");
 
 /***/ }),
 

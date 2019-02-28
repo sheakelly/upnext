@@ -1,4 +1,5 @@
-import { IResolvers, QueryResolvers } from './generated/graphql';
+import { IResolvers, QueryResolvers, MutationResolvers } from './generated/graphql';
+import uuid from "uuid"
 
 const queryResolvers: QueryResolvers.Resolvers = {
     tasks: () => [
@@ -8,6 +9,13 @@ const queryResolvers: QueryResolvers.Resolvers = {
     ]
 }
 
+const mutationResolvers: MutationResolvers.Resolvers = {
+  createTask: (_, { title }) => {
+    return { id: uuid.v4(), title, completed: false }
+  }
+}
+
 export const resolvers: IResolvers = {
-  Query: queryResolvers
+  Query: queryResolvers,
+  Mutation: mutationResolvers
 } 

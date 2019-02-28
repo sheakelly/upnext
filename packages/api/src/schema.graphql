@@ -2,6 +2,10 @@ type Query {
   tasks: [Task!]!
 }
 
+type Mutation {
+  createTask(title: String!): Task!
+}
+
 type Task {
   id: ID!
   title: String!

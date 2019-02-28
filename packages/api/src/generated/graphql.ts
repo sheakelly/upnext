@@ -16,9 +16,17 @@ export interface Task {
   completed: boolean;
 }
 
+export interface Mutation {
+  createTask: Task;
+}
+
 // ====================================================
 // Arguments
 // ====================================================
+
+export interface CreateTaskMutationArgs {
+  title: string;
+}
 
 import { GraphQLResolveInfo } from "graphql";
 
@@ -109,6 +117,21 @@ export namespace TaskResolvers {
   > = Resolver<R, Parent, TContext>;
 }
 
+export namespace MutationResolvers {
+  export interface Resolvers<TContext = {}, TypeParent = {}> {
+    createTask?: CreateTaskResolver<Task, TypeParent, TContext>;
+  }
+
+  export type CreateTaskResolver<
+    R = Task,
+    Parent = {},
+    TContext = {}
+  > = Resolver<R, Parent, TContext, CreateTaskArgs>;
+  export interface CreateTaskArgs {
+    title: string;
+  }
+}
+
 /** Directs the executor to skip this field or fragment when the `if` argument is true. */
 export type SkipDirectiveResolver<Result> = DirectiveResolverFn<
   Result,
@@ -145,6 +168,7 @@ export interface DeprecatedDirectiveArgs {
 export interface IResolvers<TContext = {}> {
   Query?: QueryResolvers.Resolvers<TContext>;
   Task?: TaskResolvers.Resolvers<TContext>;
+  Mutation?: MutationResolvers.Resolvers<TContext>;
 }
 
 export interface IDirectiveResolvers<Result> {
