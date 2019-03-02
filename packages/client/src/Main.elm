@@ -1,12 +1,13 @@
 module Main exposing (Model, Msg(..), main, update, view)
 
+import Api.Mutation as Mutation
 import Api.Object
 import Api.Object.Task
 import Api.Query as Query
 import Browser
 import Browser.Dom
 import Graphql.Http
-import Graphql.Operation exposing (RootQuery)
+import Graphql.Operation exposing (RootMutation, RootQuery)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, with)
 import Html exposing (Html, button, div, i, input, text)
 import Html.Attributes exposing (class, id)
@@ -32,7 +33,7 @@ type alias TaskList =
 
 
 type alias Model =
-    { tasks : RemoteData (Graphql.Http.Error TaskList) TaskList
+    { tasks : TaskList
     , addMode : Bool
     , newTask : Maybe Task
     }
@@ -43,7 +44,8 @@ type Msg
     | CancelAddClicked
     | SaveNewTask
     | NewTaskTitleChanged String
-    | GotResponse (RemoteData (Graphql.Http.Error TaskList) TaskList)
+    | QueryTasksResponse (Result (Graphql.Http.Error TaskList) TaskList)
+    | CreateTaskResponse (Result (Graphql.Http.Error Task) Task)
     | Focus (Result Browser.Dom.Error ())
 
 
@@ -62,12 +64,24 @@ makeRequest : Cmd Msg
 makeRequest =
     tasksQuery
         |> Graphql.Http.queryRequest "/graphql"
-        |> Graphql.Http.send (RemoteData.fromResult >> GotResponse)
+        |> Graphql.Http.send QueryTasksResponse
+
+
+createTaskMutation : String -> SelectionSet Task RootMutation
+createTaskMutation title =
+    Mutation.createTask { title = title } taskSelection
+
+
+createTask : String -> Cmd Msg
+createTask title =
+    createTaskMutation title
+        |> Graphql.Http.mutationRequest "/graphql"
+        |> Graphql.Http.send CreateTaskResponse
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { tasks = Loading, addMode = False, newTask = Nothing }, makeRequest )
+    ( { tasks = [], addMode = False, newTask = Nothing }, makeRequest )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -87,15 +101,39 @@ update msg model =
             ( { model | newTask = updated }, Cmd.none )
 
         SaveNewTask ->
-            ( { model | addMode = False }, Cmd.none )
+            case model.newTask of
+                Just newTask ->
+                    ( addTaskToModel newTask model
+                        |> andThen (\m -> { m | addMode = False })
+                    , createTask newTask.title
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         Focus _ ->
             ( model, Cmd.none )
 
-        GotResponse response ->
+        QueryTasksResponse response ->
             case response of
+                Ok tasks ->
+                    ( { model | tasks = tasks }, Cmd.none )
+
                 _ ->
-                    ( { model | tasks = response }, Cmd.none )
+                    ( model, Cmd.none )
+
+        CreateTaskResponse response ->
+            ( model, Cmd.none )
+
+
+andThen : (Model -> Model) -> Model -> Model
+andThen fn model =
+    fn model
+
+
+addTaskToModel : Task -> Model -> Model
+addTaskToModel task model =
+    { model | tasks = List.append model.tasks [ task ] }
 
 
 setAddMode : Model -> Model
@@ -118,7 +156,7 @@ view model =
     , body =
         [ viewHeader
         , div [ class "container pt-2" ]
-            [ viewTaskList (RemoteData.withDefault [] model.tasks) model.addMode ]
+            [ viewTaskList model.tasks model.addMode ]
         ]
     }
 
@@ -161,7 +199,7 @@ inputField =
             , Keyboard.onKeyDown [ ( Enter, SaveNewTask ) ]
             ]
             []
-        , icon "cancel" CancelAddClicked 
+        , icon "cancel" CancelAddClicked
         ]
 
 
