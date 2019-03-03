@@ -156,7 +156,7 @@ view model =
     , body =
         [ viewHeader
         , div [ class "container pt-2" ]
-            [ viewTaskList model.tasks model.addMode ]
+            [ viewTaskList "Inbox" model.tasks model.addMode ]
         ]
     }
 
@@ -166,15 +166,16 @@ viewHeader =
     div [ class "p-2 bg-grey text-center" ] [ text "UpNext^" ]
 
 
-viewTaskList : TaskList -> Bool -> Html Msg
-viewTaskList tasks addMode =
+viewTaskList : String -> TaskList -> Bool -> Html Msg
+viewTaskList title tasks addMode =
     let
         task_ =
             List.map viewTask tasks
 
         addButton_ =
             if addMode == False then
-                div [ class "pt-2 pl-1" ] [ icon "add_circle" AddTaskClicked ]
+                div [ class "pt-2 pl-1 text-grey" ]
+                    [ icon "add_circle" AddTaskClicked ]
 
             else
                 nothing
@@ -186,7 +187,10 @@ viewTaskList tasks addMode =
             else
                 nothing
     in
-    div [] (task_ ++ [ addButton_ ] ++ [ inputField_ ])
+    div []
+        [ div [ class "p-2 text-sm font-bold" ] [ text title ] 
+        , div [] (task_ ++ [ addButton_ ] ++ [ inputField_ ])
+        ]
 
 
 inputField : Html Msg
@@ -194,12 +198,12 @@ inputField =
     div [ class "p-2 flex items-center" ]
         [ input
             [ id "new-task"
-            , class "mr-2 appearance-none border rounded w-full py-2 px-3 text-grey-darker leading-tight focus:outline-none focus:shadow-outline"
+            , class "mr-2 appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             , onInput NewTaskTitleChanged
             , Keyboard.onKeyDown [ ( Enter, SaveNewTask ) ]
             ]
             []
-        , icon "cancel" CancelAddClicked
+        , div [ class "text-grey" ] [ icon "cancel" CancelAddClicked ]
         ]
 
 
@@ -213,11 +217,6 @@ nothing =
     text ""
 
 
-addButton : Html Msg
-addButton =
-    i [ class "p-2 material-icons text-3xl", onClick AddTaskClicked ] [ text "add_circle" ]
-
-
 icon : String -> msg -> Html msg
 icon name onClick_ =
     i [ class "material-icons text-3xl", onClick onClick_ ] [ text name ]
@@ -225,7 +224,7 @@ icon name onClick_ =
 
 viewTask : Task -> Html Msg
 viewTask task =
-    div [ class "p-2 text-lg text-black" ] [ text task.title ]
+    div [ class "p-2 text-lg text-black border-b border-grey-light border-solid" ] [ text task.title ]
 
 
 main : Program () Model Msg

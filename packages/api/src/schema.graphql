@@ -10,9 +10,11 @@ type Task {
   id: ID!
   title: String!
   completed: Boolean!
+  project: Project 
 }
 
-# type Project {
-#   name: String!
-#   tasks: [Task!]!
-# }
+type Project {
+  id: ID!
+  name: String!
+  tasks: [Task!]
+}

@@ -5666,7 +5666,7 @@ eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("module.exports = \"type Query {\\n  tasks: [Task!]!\\n}\\n\\ntype Mutation {\\n  createTask(title: String!): Task!\\n}\\n\\ntype Task {\\n  id: ID!\\n  title: String!\\n  completed: Boolean!\\n}\\n\"\n\n//# sourceURL=webpack:///./src/schema.graphql?");
+eval("module.exports = \"type Query {\\n  tasks: [Task!]!\\n}\\n\\ntype Mutation {\\n  createTask(title: String!): Task!\\n}\\n\\ntype Task {\\n  id: ID!\\n  title: String!\\n  completed: Boolean!\\n  project: Project\\n}\\n\\ntype Project {\\n  id: ID!\\n  name: String!\\n  tasks: [Task!]\\n}\\n\"\n\n//# sourceURL=webpack:///./src/schema.graphql?");
 
 /***/ }),
 
